@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppPessoasRouteImport } from './routes/_app.pessoas'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppCartoesRouteImport } from './routes/_app.cartoes'
 import { Route as AppCartaoIdRouteImport } from './routes/_app.cartao.$id'
@@ -29,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppPessoasRoute = AppPessoasRouteImport.update({
+  id: '/pessoas',
+  path: '/pessoas',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/cartoes': typeof AppCartoesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/pessoas': typeof AppPessoasRoute
   '/cartao/$id': typeof AppCartaoIdRoute
 }
 export interface FileRoutesByTo {
@@ -58,6 +65,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/cartoes': typeof AppCartoesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/pessoas': typeof AppPessoasRoute
   '/cartao/$id': typeof AppCartaoIdRoute
 }
 export interface FileRoutesById {
@@ -67,13 +75,20 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_app/cartoes': typeof AppCartoesRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/pessoas': typeof AppPessoasRoute
   '/_app/cartao/$id': typeof AppCartaoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/cartoes' | '/dashboard' | '/cartao/$id'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/cartoes'
+    | '/dashboard'
+    | '/pessoas'
+    | '/cartao/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/cartoes' | '/dashboard' | '/cartao/$id'
+  to: '/' | '/login' | '/cartoes' | '/dashboard' | '/pessoas' | '/cartao/$id'
   id:
     | '__root__'
     | '/'
@@ -81,6 +96,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_app/cartoes'
     | '/_app/dashboard'
+    | '/_app/pessoas'
     | '/_app/cartao/$id'
   fileRoutesById: FileRoutesById
 }
@@ -113,6 +129,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/pessoas': {
+      id: '/_app/pessoas'
+      path: '/pessoas'
+      fullPath: '/pessoas'
+      preLoaderRoute: typeof AppPessoasRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -140,12 +163,14 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppCartoesRoute: typeof AppCartoesRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppPessoasRoute: typeof AppPessoasRoute
   AppCartaoIdRoute: typeof AppCartaoIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCartoesRoute: AppCartoesRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppPessoasRoute: AppPessoasRoute,
   AppCartaoIdRoute: AppCartaoIdRoute,
 }
 
