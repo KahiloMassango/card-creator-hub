@@ -12,7 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppUtilizadoresRouteImport } from './routes/_app.utilizadores'
+import { Route as AppPessoasRouteImport } from './routes/_app.pessoas'
+import { Route as AppGerarRouteImport } from './routes/_app.gerar'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppCursosRouteImport } from './routes/_app.cursos'
 import { Route as AppCartoesRouteImport } from './routes/_app.cartoes'
 import { Route as AppCartaoIdRouteImport } from './routes/_app.cartao.$id'
 
@@ -30,9 +34,29 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppUtilizadoresRoute = AppUtilizadoresRouteImport.update({
+  id: '/utilizadores',
+  path: '/utilizadores',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPessoasRoute = AppPessoasRouteImport.update({
+  id: '/pessoas',
+  path: '/pessoas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGerarRoute = AppGerarRouteImport.update({
+  id: '/gerar',
+  path: '/gerar',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCursosRoute = AppCursosRouteImport.update({
+  id: '/cursos',
+  path: '/cursos',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCartoesRoute = AppCartoesRouteImport.update({
@@ -50,14 +74,22 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/cartoes': typeof AppCartoesRoute
+  '/cursos': typeof AppCursosRoute
   '/dashboard': typeof AppDashboardRoute
+  '/gerar': typeof AppGerarRoute
+  '/pessoas': typeof AppPessoasRoute
+  '/utilizadores': typeof AppUtilizadoresRoute
   '/cartao/$id': typeof AppCartaoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/cartoes': typeof AppCartoesRoute
+  '/cursos': typeof AppCursosRoute
   '/dashboard': typeof AppDashboardRoute
+  '/gerar': typeof AppGerarRoute
+  '/pessoas': typeof AppPessoasRoute
+  '/utilizadores': typeof AppUtilizadoresRoute
   '/cartao/$id': typeof AppCartaoIdRoute
 }
 export interface FileRoutesById {
@@ -66,21 +98,47 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/cartoes': typeof AppCartoesRoute
+  '/_app/cursos': typeof AppCursosRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/gerar': typeof AppGerarRoute
+  '/_app/pessoas': typeof AppPessoasRoute
+  '/_app/utilizadores': typeof AppUtilizadoresRoute
   '/_app/cartao/$id': typeof AppCartaoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/cartoes' | '/dashboard' | '/cartao/$id'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/cartoes'
+    | '/cursos'
+    | '/dashboard'
+    | '/gerar'
+    | '/pessoas'
+    | '/utilizadores'
+    | '/cartao/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/cartoes' | '/dashboard' | '/cartao/$id'
+  to:
+    | '/'
+    | '/login'
+    | '/cartoes'
+    | '/cursos'
+    | '/dashboard'
+    | '/gerar'
+    | '/pessoas'
+    | '/utilizadores'
+    | '/cartao/$id'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/login'
     | '/_app/cartoes'
+    | '/_app/cursos'
     | '/_app/dashboard'
+    | '/_app/gerar'
+    | '/_app/pessoas'
+    | '/_app/utilizadores'
     | '/_app/cartao/$id'
   fileRoutesById: FileRoutesById
 }
@@ -113,11 +171,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/utilizadores': {
+      id: '/_app/utilizadores'
+      path: '/utilizadores'
+      fullPath: '/utilizadores'
+      preLoaderRoute: typeof AppUtilizadoresRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/pessoas': {
+      id: '/_app/pessoas'
+      path: '/pessoas'
+      fullPath: '/pessoas'
+      preLoaderRoute: typeof AppPessoasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/gerar': {
+      id: '/_app/gerar'
+      path: '/gerar'
+      fullPath: '/gerar'
+      preLoaderRoute: typeof AppGerarRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/cursos': {
+      id: '/_app/cursos'
+      path: '/cursos'
+      fullPath: '/cursos'
+      preLoaderRoute: typeof AppCursosRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/cartoes': {
@@ -139,13 +225,21 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppCartoesRoute: typeof AppCartoesRoute
+  AppCursosRoute: typeof AppCursosRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppGerarRoute: typeof AppGerarRoute
+  AppPessoasRoute: typeof AppPessoasRoute
+  AppUtilizadoresRoute: typeof AppUtilizadoresRoute
   AppCartaoIdRoute: typeof AppCartaoIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCartoesRoute: AppCartoesRoute,
+  AppCursosRoute: AppCursosRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppGerarRoute: AppGerarRoute,
+  AppPessoasRoute: AppPessoasRoute,
+  AppUtilizadoresRoute: AppUtilizadoresRoute,
   AppCartaoIdRoute: AppCartaoIdRoute,
 }
 
