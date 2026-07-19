@@ -135,6 +135,16 @@ export function saveEstudante(est: Estudante) {
 
 export function getPessoas(): Pessoa[] { return readOr(PESSOAS_KEY, SEED_PESSOAS); }
 export function getPessoa(id: string): Pessoa | undefined { return getPessoas().find((p) => p.id === id); }
+export function addPessoa(input: Omit<Pessoa, "id" | "codigo"> & { codigo?: number }): Pessoa {
+  const list = getPessoas();
+  const prefix = input.tipo === "Funcionário" ? "p-f" : input.tipo === "Docente" ? "p-d" : "p-e";
+  const seq = String(list.filter((p) => p.id.startsWith(prefix)).length + 1).padStart(4, "0");
+  const codigo = input.codigo ?? Math.max(20260000, ...list.map((p) => p.codigo)) + 1;
+  const nova: Pessoa = { ...input, id: `${prefix}-${seq}`, codigo };
+  list.unshift(nova);
+  write(PESSOAS_KEY, list);
+  return nova;
+}
 
 export function getCursos(): Curso[] { return readOr(CURSOS_KEY, SEED_CURSOS); }
 export function getUtilizadores(): Utilizador[] { return readOr(USERS_KEY, SEED_UTILIZADORES); }
