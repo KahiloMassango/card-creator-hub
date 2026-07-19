@@ -1,20 +1,40 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
-import { getEstudante, type Estudante } from "@/lib/store";
+import { emitirCartao, getEstudante, getPessoa, type Estudante, type Pessoa } from "@/lib/store";
 import { CartaoFrente, CartaoVerso, drawCardFrenteCanvas, drawCardVersoCanvas } from "@/components/CartaoEstudante";
 
 export const Route = createFileRoute("/_app/cartao/$id")({
   component: CartaoPage,
-  head: () => ({ meta: [{ title: "Cartão do estudante — IMetro" }] }),
+  head: () => ({ meta: [{ title: "Cartão — iMetro" }] }),
 });
+
+function pessoaToEstudante(p: Pessoa): Estudante {
+  return {
+    id_est: p.id, nome: p.nome, contacto: p.contacto, genero: p.genero,
+    email: p.email, bi: p.bi, codigo: p.codigo, curso: p.cargo,
+    ano_letivo: p.ano_letivo, status: p.status === "Activo" ? "Matriculado" : p.status === "Pendente" ? "Pendente" : "Admitido",
+  };
+}
 
 function CartaoPage() {
   const { id } = useParams({ from: "/_app/cartao/$id" });
   const [e, setE] = useState<Estudante | null>(null);
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => { setE(getEstudante(id) ?? null); }, [id]);
+  useEffect(() => {
+    const p = getPessoa(id);
+    if (p) { setE(pessoaToEstudante(p)); emitirCartao(p); return; }
+    const est = getEstudante(id);
+    if (est) {
+      setE(est);
+      emitirCartao({
+        id: est.id_est, nome: est.nome, tipo: "Estudante", cargo: est.curso, email: est.email,
+        contacto: est.contacto, bi: est.bi, codigo: est.codigo, genero: est.genero,
+        ano_letivo: est.ano_letivo, status: est.status === "Matriculado" ? "Activo" : est.status === "Pendente" ? "Pendente" : "Inactivo",
+      });
+    }
+  }, [id]);
 
   async function exportPDF() {
     if (!e) return;
