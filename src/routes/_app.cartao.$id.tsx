@@ -85,6 +85,8 @@ function CartaoPage() {
       <div className="rounded-xl border border-border bg-card p-8 text-center">
         <p className="text-sm text-muted-foreground">Pessoa não encontrada.</p>
         <Link to="/dashboard" className="text-sm text-primary hover:underline mt-3 inline-block">Voltar</Link>
+      </div>
+    );
   }
 
   return (
