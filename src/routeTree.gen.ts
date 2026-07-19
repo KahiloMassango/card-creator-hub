@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppUtilizadoresRouteImport } from './routes/_app.utilizadores'
 import { Route as AppPessoasRouteImport } from './routes/_app.pessoas'
 import { Route as AppGerarRouteImport } from './routes/_app.gerar'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
@@ -32,6 +33,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppUtilizadoresRoute = AppUtilizadoresRouteImport.update({
+  id: '/utilizadores',
+  path: '/utilizadores',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppPessoasRoute = AppPessoasRouteImport.update({
   id: '/pessoas',
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AppDashboardRoute
   '/gerar': typeof AppGerarRoute
   '/pessoas': typeof AppPessoasRoute
+  '/utilizadores': typeof AppUtilizadoresRoute
   '/cartao/$id': typeof AppCartaoIdRoute
 }
 export interface FileRoutesByTo {
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AppDashboardRoute
   '/gerar': typeof AppGerarRoute
   '/pessoas': typeof AppPessoasRoute
+  '/utilizadores': typeof AppUtilizadoresRoute
   '/cartao/$id': typeof AppCartaoIdRoute
 }
 export interface FileRoutesById {
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/gerar': typeof AppGerarRoute
   '/_app/pessoas': typeof AppPessoasRoute
+  '/_app/utilizadores': typeof AppUtilizadoresRoute
   '/_app/cartao/$id': typeof AppCartaoIdRoute
 }
 export interface FileRouteTypes {
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/gerar'
     | '/pessoas'
+    | '/utilizadores'
     | '/cartao/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/gerar'
     | '/pessoas'
+    | '/utilizadores'
     | '/cartao/$id'
   id:
     | '__root__'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/_app/dashboard'
     | '/_app/gerar'
     | '/_app/pessoas'
+    | '/_app/utilizadores'
     | '/_app/cartao/$id'
   fileRoutesById: FileRoutesById
 }
@@ -158,6 +170,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/utilizadores': {
+      id: '/_app/utilizadores'
+      path: '/utilizadores'
+      fullPath: '/utilizadores'
+      preLoaderRoute: typeof AppUtilizadoresRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/pessoas': {
       id: '/_app/pessoas'
@@ -210,6 +229,7 @@ interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppGerarRoute: typeof AppGerarRoute
   AppPessoasRoute: typeof AppPessoasRoute
+  AppUtilizadoresRoute: typeof AppUtilizadoresRoute
   AppCartaoIdRoute: typeof AppCartaoIdRoute
 }
 
@@ -219,6 +239,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppGerarRoute: AppGerarRoute,
   AppPessoasRoute: AppPessoasRoute,
+  AppUtilizadoresRoute: AppUtilizadoresRoute,
   AppCartaoIdRoute: AppCartaoIdRoute,
 }
 
