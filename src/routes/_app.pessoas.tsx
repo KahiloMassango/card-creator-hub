@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { getPessoas, type Pessoa, type TipoPessoa } from "@/lib/store";
+import { z } from "zod";
+import { addPessoa, getPessoas, type Pessoa, type TipoPessoa } from "@/lib/store";
 
 export const Route = createFileRoute("/_app/pessoas")({
   component: PessoasPage,
@@ -9,10 +10,23 @@ export const Route = createFileRoute("/_app/pessoas")({
 
 const tabs: (TipoPessoa | "Todos")[] = ["Todos", "Funcionário", "Docente", "Estudante"];
 
+const pessoaSchema = z.object({
+  nome: z.string().trim().min(3, "Nome muito curto").max(100),
+  tipo: z.enum(["Funcionário", "Docente", "Estudante"]),
+  cargo: z.string().trim().min(2, "Indique o cargo ou curso").max(120),
+  email: z.string().trim().email("Email inválido").max(255),
+  contacto: z.string().trim().min(6, "Contacto inválido").max(30),
+  bi: z.string().trim().min(6, "BI inválido").max(20),
+  genero: z.enum(["Masculino", "Feminino"]),
+  ano_letivo: z.string().trim().min(4).max(20),
+  status: z.enum(["Activo", "Inactivo", "Pendente"]),
+});
+
 function PessoasPage() {
   const [list, setList] = useState<Pessoa[]>([]);
   const [q, setQ] = useState("");
   const [tab, setTab] = useState<(typeof tabs)[number]>("Todos");
+  const [openForm, setOpenForm] = useState(false);
 
   useEffect(() => { setList(getPessoas()); }, []);
 
@@ -27,9 +41,17 @@ function PessoasPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Pessoas</h1>
-        <p className="text-sm text-muted-foreground mt-1">Funcionários, docentes e estudantes registados no sistema.</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Pessoas</h1>
+          <p className="text-sm text-muted-foreground mt-1">Funcionários, docentes e estudantes registados no sistema.</p>
+        </div>
+        <button
+          onClick={() => setOpenForm(true)}
+          className="inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90"
+        >
+          <span className="text-lg leading-none">+</span> Adicionar pessoa
+        </button>
       </div>
 
       <div className="rounded-xl border border-border bg-card">
@@ -105,6 +127,104 @@ function PessoasPage() {
           </table>
         </div>
       </div>
+
+      {openForm && (
+        <AddPessoaModal
+          onClose={() => setOpenForm(false)}
+          onCreated={(p) => { setList((l) => [p, ...l]); setOpenForm(false); }}
+        />
+      )}
     </div>
+  );
+}
+
+function AddPessoaModal({ onClose, onCreated }: { onClose: () => void; onCreated: (p: Pessoa) => void }) {
+  const [form, setForm] = useState({
+    nome: "", tipo: "Estudante" as TipoPessoa, cargo: "", email: "",
+    contacto: "", bi: "", genero: "Masculino" as "Masculino" | "Feminino",
+    ano_letivo: "2025-2026", status: "Activo" as Pessoa["status"],
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  function update<K extends keyof typeof form>(k: K, v: (typeof form)[K]) {
+    setForm((f) => ({ ...f, [k]: v }));
+  }
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const parsed = pessoaSchema.safeParse(form);
+    if (!parsed.success) {
+      const errs: Record<string, string> = {};
+      for (const issue of parsed.error.issues) errs[issue.path[0] as string] = issue.message;
+      setErrors(errs);
+      return;
+    }
+    const nova = addPessoa(parsed.data);
+    onCreated(nova);
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/40 backdrop-blur-sm p-4" onClick={onClose}>
+      <div className="w-full max-w-lg rounded-xl border border-border bg-card shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-5 border-b border-border">
+          <div>
+            <h2 className="font-semibold">Adicionar pessoa</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Registe um funcionário, docente ou estudante.</p>
+          </div>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-lg leading-none">×</button>
+        </div>
+        <form onSubmit={submit} className="p-5 grid grid-cols-2 gap-4 text-sm">
+          <Field label="Nome completo" error={errors.nome} className="col-span-2">
+            <input value={form.nome} onChange={(e) => update("nome", e.target.value)} maxLength={100} className={input} />
+          </Field>
+          <Field label="Tipo" error={errors.tipo}>
+            <select value={form.tipo} onChange={(e) => update("tipo", e.target.value as TipoPessoa)} className={input}>
+              <option>Funcionário</option><option>Docente</option><option>Estudante</option>
+            </select>
+          </Field>
+          <Field label={form.tipo === "Estudante" ? "Curso" : "Cargo"} error={errors.cargo}>
+            <input value={form.cargo} onChange={(e) => update("cargo", e.target.value)} maxLength={120} className={input} />
+          </Field>
+          <Field label="Email" error={errors.email}>
+            <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} maxLength={255} className={input} />
+          </Field>
+          <Field label="Contacto" error={errors.contacto}>
+            <input value={form.contacto} onChange={(e) => update("contacto", e.target.value)} maxLength={30} className={input} />
+          </Field>
+          <Field label="BI" error={errors.bi}>
+            <input value={form.bi} onChange={(e) => update("bi", e.target.value)} maxLength={20} className={input} />
+          </Field>
+          <Field label="Género">
+            <select value={form.genero} onChange={(e) => update("genero", e.target.value as "Masculino" | "Feminino")} className={input}>
+              <option>Masculino</option><option>Feminino</option>
+            </select>
+          </Field>
+          <Field label="Ano lectivo">
+            <input value={form.ano_letivo} onChange={(e) => update("ano_letivo", e.target.value)} maxLength={20} className={input} />
+          </Field>
+          <Field label="Estado">
+            <select value={form.status} onChange={(e) => update("status", e.target.value as Pessoa["status"])} className={input}>
+              <option>Activo</option><option>Pendente</option><option>Inactivo</option>
+            </select>
+          </Field>
+          <div className="col-span-2 flex justify-end gap-2 pt-2 border-t border-border">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-md text-sm hover:bg-muted">Cancelar</button>
+            <button type="submit" className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+const input = "h-9 w-full px-3 rounded-md border border-input bg-background text-sm outline-none focus:ring-2 focus:ring-ring/40";
+
+function Field({ label, error, className, children }: { label: string; error?: string; className?: string; children: React.ReactNode }) {
+  return (
+    <label className={`block ${className ?? ""}`}>
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <div className="mt-1">{children}</div>
+      {error && <span className="text-xs text-destructive mt-1 block">{error}</span>}
+    </label>
   );
 }
