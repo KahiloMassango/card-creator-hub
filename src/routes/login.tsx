@@ -4,7 +4,7 @@ import { login } from "@/lib/store";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
-  head: () => ({ meta: [{ title: "Entrar — IMetro Cartões" }] }),
+  head: () => ({ meta: [{ title: "Entrar — IMETRO Cartões" }] }),
 });
 
 function LoginPage() {
@@ -16,72 +16,66 @@ function LoginPage() {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErr(null);
-    if (login(email, senha)) nav({ to: "/dashboard" });
-    else setErr("Credenciais inválidas. Verifique o email e a palavra-passe.");
+    if (login(email, senha)) {
+      nav({ to: "/dashboard" });
+    } else {
+      setErr("Credenciais inválidas. Verifique o utilizador e a palavra-passe.");
+    }
   }
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
-      <div className="hidden lg:flex flex-col justify-between p-12 bg-primary text-primary-foreground">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-md bg-primary-foreground/15 grid place-items-center font-bold">iM</div>
+    <div className="min-h-screen flex items-center justify-center bg-[#EAF7FD] p-4 font-sans">
+      <div className="w-full max-w-[420px] bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100 p-8 flex flex-col">
+        {/* IMETRO Logo Section */}
+        <div className="flex flex-col items-center mb-6 gap-2">
+          <img
+            src="/logo.png"
+            alt="IMETRO"
+            className="h-20 object-contain"
+          />
+          <div className="text-[10px] font-bold text-[#2E52C7] font-serif italic tracking-wider">
+            A Marca da Educação
+          </div>
+        </div>
+
+        <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <div className="text-lg font-semibold tracking-tight">IMetro</div>
-            <div className="text-xs opacity-80">Sistema de Cartões</div>
+            <input
+              type="email"
+              required
+              placeholder="Utilizador"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full h-12 px-4 rounded-md border border-slate-200 bg-white text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-[#3E72D7] focus:ring-1 focus:ring-[#3E72D7] transition-all"
+            />
           </div>
-        </div>
-        <div>
-          <h1 className="text-3xl font-semibold leading-tight">Emissão de cartões de identificação institucional</h1>
-          <p className="mt-4 text-sm opacity-85 max-w-md">
-            Uma ferramenta simples para gerar, imprimir e gerir cartões de estudantes, com verificação por código QR.
-          </p>
-        </div>
-        <div className="text-xs opacity-70">© {new Date().getFullYear()} IMetro · Uso institucional</div>
-      </div>
+          <div>
+            <input
+              type="password"
+              required
+              placeholder="Palavra-passe"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              className="w-full h-12 px-4 rounded-md border border-slate-200 bg-white text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-[#3E72D7] focus:ring-1 focus:ring-[#3E72D7] transition-all"
+            />
+          </div>
 
-      <div className="flex items-center justify-center p-6 lg:p-12 bg-background">
-        <form onSubmit={onSubmit} className="w-full max-w-sm">
-          <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="h-10 w-10 rounded-md bg-primary text-primary-foreground grid place-items-center font-bold">iM</div>
-            <div className="font-semibold">IMetro Cartões</div>
-          </div>
-          <h2 className="text-2xl font-semibold tracking-tight">Entrar</h2>
-          <p className="text-sm text-muted-foreground mt-1">Aceda à sua conta para gerir cartões.</p>
+          {err && <div className="text-xs text-red-500 font-medium text-center">{err}</div>}
 
-          <div className="mt-8 space-y-4">
-            <div>
-              <label className="text-sm font-medium">Email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full h-10 px-3 rounded-md border border-input bg-background text-sm outline-none focus:ring-2 focus:ring-ring/40"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Palavra-passe</label>
-              <input
-                type="password"
-                required
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-                className="mt-1 w-full h-10 px-3 rounded-md border border-input bg-background text-sm outline-none focus:ring-2 focus:ring-ring/40"
-                placeholder="Mínimo 4 caracteres"
-              />
-            </div>
-            {err && <div className="text-sm text-destructive">{err}</div>}
-            <button
-              type="submit"
-              className="w-full h-10 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition"
-            >
-              Entrar
-            </button>
-            <p className="text-xs text-muted-foreground text-center">
-              Demonstração: use o email pré-preenchido e qualquer palavra-passe com 4+ caracteres.
-            </p>
-          </div>
+          <button
+            type="submit"
+            className="w-full h-12 rounded-md bg-[#3E72D7] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#3261BE] active:bg-[#2A51A1] shadow-sm transition-all cursor-pointer"
+          >
+            ENTRAR
+          </button>
         </form>
+
+        <div className="mt-6 pt-5 border-t border-slate-100 flex flex-col items-center gap-1.5 text-[11px] text-slate-400 text-center">
+          <div>IMETRO · Portal de Emissão de Cartões</div>
+          <div className="opacity-80">
+            Use <span className="font-medium text-slate-500">arturpaulo929@gmail.com</span> e qualquer passe com 4+ caracteres.
+          </div>
+        </div>
       </div>
     </div>
   );

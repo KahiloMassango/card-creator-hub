@@ -14,6 +14,7 @@ function pessoaToEstudante(p: Pessoa): Estudante {
     id_est: p.id, nome: p.nome, contacto: p.contacto, genero: p.genero,
     email: p.email, bi: p.bi, codigo: p.codigo, curso: p.cargo,
     ano_letivo: p.ano_letivo, status: p.status === "Activo" ? "Matriculado" : p.status === "Pendente" ? "Pendente" : "Admitido",
+    foto: p.foto, tema: p.tema,
   };
 }
 
@@ -24,7 +25,11 @@ function CartaoPage() {
 
   useEffect(() => {
     const p = getPessoa(id);
-    if (p) { setE(pessoaToEstudante(p)); emitirCartao(p); return; }
+    if (p) {
+      setE(pessoaToEstudante(p));
+      emitirCartao(p);
+      return;
+    }
     const est = getEstudante(id);
     if (est) {
       setE(est);
@@ -32,6 +37,7 @@ function CartaoPage() {
         id: est.id_est, nome: est.nome, tipo: "Estudante", cargo: est.curso, email: est.email,
         contacto: est.contacto, bi: est.bi, codigo: est.codigo, genero: est.genero,
         ano_letivo: est.ano_letivo, status: est.status === "Matriculado" ? "Activo" : est.status === "Pendente" ? "Pendente" : "Inactivo",
+        foto: est.foto, tema: est.tema,
       });
     }
   }, [id]);
@@ -49,7 +55,7 @@ function CartaoPage() {
       const ctx = canvas.getContext("2d")!;
       ctx.scale(scale / (342 / cardW), scale / (342 / cardW));
       // draw front
-      drawCardFrenteCanvas(ctx, e, 0, 0, 342, 216);
+      await drawCardFrenteCanvas(ctx, e, 0, 0, 342, 216);
       const frontUrl = canvas.toDataURL("image/png");
       // clear + back
       ctx.setTransform(1, 0, 0, 1, 0, 0);

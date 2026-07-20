@@ -23,20 +23,25 @@ function AppLayout() {
   const nav_items = [
     { to: "/dashboard", label: "Dashboard", icon: DashboardIcon },
     { to: "/pessoas", label: "Pessoas", icon: UsersIcon },
-    { to: "/gerar", label: "Gerar Cartão", icon: CardIcon },
+    { to: "/gerar", label: "Card Studio", icon: CardIcon },
     { to: "/cartoes", label: "Cartões Emitidos", icon: ListIcon },
     { to: "/cursos", label: "Cursos", icon: BookIcon },
     { to: "/utilizadores", label: "Utilizadores", icon: UserIcon },
   ];
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="min-h-screen flex bg-background text-slate-800">
       <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar no-print">
-        <div className="h-20 flex items-center gap-3 px-5 border-b border-sidebar-border">
-          <div className="h-11 w-11 rounded-lg bg-primary text-primary-foreground grid place-items-center font-bold text-lg">iM</div>
-          <div>
-            <div className="text-base font-semibold leading-tight">iMetro</div>
-            <div className="text-[10px] tracking-widest text-muted-foreground uppercase">Cartões & Identificação</div>
+        <div className="h-20 flex items-center gap-3 px-4 border-b border-sidebar-border">
+          {/* Gold Wreath Logo */}
+          <img
+            src="/logo.png"
+            alt="IMETRO"
+            className="h-10 w-10 object-contain shrink-0"
+          />
+          <div className="min-w-0">
+            <div className="text-sm font-bold leading-tight truncate text-[#0f2b5c]">IMETRO</div>
+            <div className="text-[9px] tracking-wider text-muted-foreground uppercase truncate">Card Studio</div>
           </div>
         </div>
         <nav className="p-3 flex-1 space-y-1">

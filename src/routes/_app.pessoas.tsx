@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { addPessoa, getPessoas, type Pessoa, type TipoPessoa } from "@/lib/store";
+import { addPessoa, getPessoas, getCursos, type Pessoa, type TipoPessoa } from "@/lib/store";
 
 export const Route = createFileRoute("/_app/pessoas")({
   component: PessoasPage,
@@ -81,7 +81,7 @@ function PessoasPage() {
                 <th className="px-4 py-3 font-medium">Nome</th>
                 <th className="px-4 py-3 font-medium">Tipo</th>
                 <th className="px-4 py-3 font-medium">Cargo / Curso</th>
-                <th className="px-4 py-3 font-medium">Código</th>
+                <th className="px-4 py-3 font-medium">Nº de Estudante</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
                 <th className="px-4 py-3 font-medium text-right">Acções</th>
               </tr>
@@ -139,10 +139,19 @@ function PessoasPage() {
 }
 
 function AddPessoaModal({ onClose, onCreated }: { onClose: () => void; onCreated: (p: Pessoa) => void }) {
-  const [form, setForm] = useState({
-    nome: "", tipo: "Estudante" as TipoPessoa, cargo: "", email: "",
-    contacto: "", bi: "", genero: "Masculino" as "Masculino" | "Feminino",
-    ano_letivo: "2025-2026", status: "Activo" as Pessoa["status"],
+  const [form, setForm] = useState(() => {
+    const cursos = getCursos();
+    return {
+      nome: "",
+      tipo: "Estudante" as TipoPessoa,
+      cargo: cursos[0]?.nome || "",
+      email: "",
+      contacto: "",
+      bi: "",
+      genero: "Masculino" as "Masculino" | "Feminino",
+      ano_letivo: "2025-2026",
+      status: "Activo" as Pessoa["status"],
+    };
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -178,12 +187,34 @@ function AddPessoaModal({ onClose, onCreated }: { onClose: () => void; onCreated
             <input value={form.nome} onChange={(e) => update("nome", e.target.value)} maxLength={100} className={input} />
           </Field>
           <Field label="Tipo" error={errors.tipo}>
-            <select value={form.tipo} onChange={(e) => update("tipo", e.target.value as TipoPessoa)} className={input}>
+            <select
+              value={form.tipo}
+              onChange={(e) => {
+                const tipo = e.target.value as TipoPessoa;
+                setForm((f) => ({
+                  ...f,
+                  tipo,
+                  cargo: tipo === "Estudante" ? (getCursos()[0]?.nome || "") : "",
+                }));
+              }}
+              className={input}
+            >
               <option>Funcionário</option><option>Docente</option><option>Estudante</option>
             </select>
           </Field>
           <Field label={form.tipo === "Estudante" ? "Curso" : "Cargo"} error={errors.cargo}>
-            <input value={form.cargo} onChange={(e) => update("cargo", e.target.value)} maxLength={120} className={input} />
+            {form.tipo === "Estudante" ? (
+              <select value={form.cargo} onChange={(e) => update("cargo", e.target.value)} className={input}>
+                <option value="">Selecione o curso...</option>
+                {getCursos().map((c) => (
+                  <option key={c.id} value={c.nome}>
+                    {c.nome}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input value={form.cargo} onChange={(e) => update("cargo", e.target.value)} maxLength={120} className={input} />
+            )}
           </Field>
           <Field label="Email" error={errors.email}>
             <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} maxLength={255} className={input} />

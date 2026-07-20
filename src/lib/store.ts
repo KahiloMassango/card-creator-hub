@@ -12,6 +12,7 @@ export type Estudante = {
   ano_letivo: string;
   status: "Matriculado" | "Admitido" | "Pendente";
   foto?: string;
+  tema?: string;
 };
 
 export type TipoPessoa = "Funcionário" | "Docente" | "Estudante";
@@ -28,6 +29,8 @@ export type Pessoa = {
   genero: "Masculino" | "Feminino";
   ano_letivo: string;
   status: "Activo" | "Inactivo" | "Pendente";
+  foto?: string;
+  tema?: string;
 };
 
 export type Curso = {
@@ -58,6 +61,8 @@ export type CartaoEmitido = {
   emitido_em: string; // ISO
   validade: string; // ISO
   estado: "Emitido" | "Revogado" | "Expirado";
+  foto?: string;
+  tema?: string;
 };
 
 const SEED_ESTUDANTES: Estudante[] = [
@@ -150,10 +155,29 @@ export function getCursos(): Curso[] { return readOr(CURSOS_KEY, SEED_CURSOS); }
 export function getUtilizadores(): Utilizador[] { return readOr(USERS_KEY, SEED_UTILIZADORES); }
 
 export function getCartoesEmitidos(): CartaoEmitido[] { return readOr(CARDS_KEY, SEED_CARTOES); }
-export function emitirCartao(pessoa: Pessoa): CartaoEmitido {
+export function updatePessoa(p: Pessoa) {
+  const list = getPessoas();
+  const idx = list.findIndex((x) => x.id === p.id);
+  if (idx >= 0) {
+    list[idx] = p;
+    write(PESSOAS_KEY, list);
+  }
+}
+export function emitirCartao(pessoa: Pessoa, custom?: { foto?: string; tema?: string }): CartaoEmitido {
   const list = getCartoesEmitidos();
-  const existing = list.find((c) => c.pessoa_id === pessoa.id && c.estado === "Emitido");
-  if (existing) return existing;
+  
+  // Se já existe e há dados customizados novos, atualiza no histórico
+  const existingIdx = list.findIndex((c) => c.pessoa_id === pessoa.id && c.estado === "Emitido");
+  const existing = existingIdx >= 0 ? list[existingIdx] : null;
+  if (existing) {
+    if (custom) {
+      existing.foto = custom.foto ?? existing.foto ?? pessoa.foto;
+      existing.tema = custom.tema ?? existing.tema ?? pessoa.tema;
+      write(CARDS_KEY, list);
+    }
+    return existing;
+  }
+
   const seq = String(list.length + 1).padStart(4, "0");
   const now = new Date();
   const val = new Date(now); val.setFullYear(val.getFullYear() + 1);
@@ -167,6 +191,8 @@ export function emitirCartao(pessoa: Pessoa): CartaoEmitido {
     emitido_em: now.toISOString().slice(0, 10),
     validade: val.toISOString().slice(0, 10),
     estado: "Emitido",
+    foto: custom?.foto ?? pessoa.foto,
+    tema: custom?.tema ?? pessoa.tema,
   };
   list.unshift(rec);
   write(CARDS_KEY, list);
